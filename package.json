@@ -1,0 +1,24 @@
+{
+  "name": "pg-seq-scan-alert",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "docker": "docker run -d --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres:15.4-alpine",
+    "test": "zUnit"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "zunit": "^4.0.2"
+  },
+  "dependencies": {
+    "pg": "^8.11.3"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}
