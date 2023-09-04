@@ -26,7 +26,7 @@ describe('PG Scanner', () => {
   })
 
   describe('Scan', () => {
-    it('should tolerate not custom tables', async () => {
+    it('should ignore standard tables', async () => {
       const scanner = await connect();
       const tables = await scanner.scan();
       eq(tables.length, 0);
