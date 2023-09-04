@@ -1,13 +1,33 @@
-const { strictEqual: eq, rejects } = require('node:assert');
-const { afterEach, describe, xdescribe, it } = require('zunit');
+const { ok, strictEqual: eq, rejects } = require('node:assert');
+const { before, afterEach, describe, xdescribe, it } = require('zunit');
+const { Client } = require('pg');
 const Scanner = require('../lib/Scanner')
 
 describe('PG Scanner', () => {
+
+  let scanner;
+
+  const config = {
+    host: 'localhost',
+    port: 5432,
+    database: 'postgres',
+    user: 'postgres',
+    password: 'postgres'
+  }
+
+  before(async () => {
+    await nuke();
+  })
 
   afterEach(async () => {
     if (!scanner) return;
     await scanner.disconnect();
   })
+
+  afterEach(async () => {
+    await nuke();
+  })
+
 
   describe('Connect', () => {
     it('should connect successfully', async () => {
@@ -32,27 +52,56 @@ describe('PG Scanner', () => {
       eq(tables.length, 0);
     })
 
-    // it('should', async () => {
-    //   eq(tables[0].schema, 'test_schema');
-    //   eq(tables[0].table, 'test_table');
-    //   eq(tables[0].sequenceScans, 0);
-    //   eq(tables[0].rowsScanned, 0);
-    // })
+    it('should return stats for custom tables', async () => {
+      await createTable('test_table');
+
+      const scanner = await connect();
+      const [stats] = await scanner.scan();
+      ok(stats, 'No custom tables');
+      eq(stats.schema, 'public');
+      eq(stats.table, 'test_table');
+
+      console.log({ stats });
+      eq(stats.sequentialScans, 0);
+      eq(stats.rowsScanned, 0);
+    })
   });
 
   describe('Disconnect', () => {
 
   })
+
+  function connect() {
+    scanner = new Scanner(config);
+    return scanner.connect();
+  }
+
+  async function createTable(tableName) {
+    const client = new Client(config);
+    await client.connect();
+    await client.query(`CREATE TABLE ${tableName} ( id INTEGER PRIMARY KEY )`);
+    await client.end();
+  }
+
+  async function nuke() {
+    const client = new Client(config);
+    await client.connect();
+    const results = await client.query("SELECT relname FROM pg_stat_all_tables WHERE schemaname = 'public'");
+    const dropTables = results.rows.map(({ relname }) => {
+      return client.query(`DROP TABLE ${relname}`);
+    });
+    await dropTables;
+    await client.end();
+  }
 })
 
-function connect() {
-  const config = {
-    host: 'localhost',
-    port: 5432,
-    database: 'postgres',
-    user: 'postgres',
-    password: 'postgres'
-  }
-  scanner = new Scanner(config);
-  return scanner.connect();
-}
+/*
+CREATE TABLE test_table (
+  id INTEGER PRIMARY KEY
+);
+SELECT * FROM pg_stat_all_tables WHERE schemaname = 'public';
+
+SELECT * FROM test_table;
+
+INSERT INTO test_table VALUES (1);
+*/
