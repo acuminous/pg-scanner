@@ -15,7 +15,7 @@ describe('PG Scanner', () => {
     password: 'postgres'
   }
 
-  const database = new Database(config, 'test_table');
+  const database = new Database(config);
   let scanner = new NullScanner();
 
   before(async () => {
@@ -57,7 +57,7 @@ describe('PG Scanner', () => {
     })
 
     it('should return stats for custom tables', async () => {
-      await database.createTable()
+      await database.createTable('test_table')
 
       const scanner = await connect();
 
@@ -70,32 +70,63 @@ describe('PG Scanner', () => {
     })
 
     it('should return the total number of sequential table scans after reading the table', async () => {
-      await database.createTable()
+      await database.createTable('test_table')
       const scanner = await connect();
 
       const [stats1] = await scanner.scan();
       eq(stats1.sequentialScans, '1');
 
-      await database.readTable()
+      await database.readTable('test_table')
 
       const [stats2] = await scanner.scan();
       eq(stats2.sequentialScans, '2');
     })
 
     it('should return the total number of rows read by sequential table scans after insertion', async () => {
-      await database.createTable()
+      await database.createTable('test_table')
       const numberOfRows = 2;
       const numberOfReads = 3;
       const numberOfRowsScanned = numberOfRows * numberOfReads;
 
-      await database.insertRow(numberOfRows);
-      await database.readTable(numberOfReads);
+      await database.insertRow('test_table', numberOfRows);
+      await database.readTable('test_table', numberOfReads);
 
       const scanner = await connect();
       const [stats] = await scanner.scan();
       eq(stats.rowsScanned, `${numberOfRowsScanned}`);
     })
+
+    it('should return the difference between sequential rows read', async () => {
+      await database.createTable('test_table');
+      const startingNumberOfRows = 2;
+      const startingNumberOfReads = 3;
+      await database.insertRow('test_table', startingNumberOfRows);
+      await database.readTable('test_table', startingNumberOfReads);
+
+      const scanner = await connect();
+      await scanner.scan();
+
+      const additionalNumberOfRows = 3;
+      const additionalNumberOfReads = 5;
+      await database.insertRow('test_table', additionalNumberOfRows);
+      await database.readTable('test_table', additionalNumberOfReads);
+
+      const startingNumberOfRowsScanned = startingNumberOfRows * startingNumberOfReads;
+      const additionalNumberOfRowsScanned = (startingNumberOfRows + additionalNumberOfRows) * additionalNumberOfReads;
+      const totalNumberOfRowsScanned = startingNumberOfRowsScanned + additionalNumberOfRowsScanned;
+      const delta = totalNumberOfRowsScanned - startingNumberOfRowsScanned;
+
+      const [stats] = await scanner.scan();
+      eq(stats.rowsScannedDelta, `${delta}`)
+    })
+
+    it('should return the difference between sequential rows read when there are multiple tables', () => {
+
+    })
   });
+
+  it('should work when the table has previous rows scanned rather than none')
+  it('should work with really big numbers')
 
   describe('Disconnect', () => {
 

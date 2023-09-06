@@ -2,12 +2,10 @@ const { Client } = require('pg');
 
 module.exports = class Database {
   #config
-  #tableName
   #index = 1;
 
-  constructor(config, tableName) {
+  constructor(config) {
     this.#config = config
-    this.#tableName = tableName
   }
 
   async withClient(callback) {
@@ -20,26 +18,26 @@ module.exports = class Database {
     }
   }
 
-  async createTable() {
+  async createTable(tableName) {
     return this.withClient(async (client) => {
-      const query = `CREATE TABLE ${this.#tableName} (id SERIAL PRIMARY KEY)`;
+      const query = `CREATE TABLE ${tableName} (id SERIAL PRIMARY KEY)`;
       await client.query(query);
     });
   }
 
-  async readTable(n = 1) {
+  async readTable(tableName, n = 1) {
     return this.withClient(async (client) => {
       for (let i = 0; i < n; i++) {
-        const query = `SELECT * FROM ${this.#tableName}`;
+        const query = `SELECT * FROM ${tableName}`;
         await client.query(query);
       }
     });
   }
 
-  async insertRow(n = 1) {
+  async insertRow(tableName, n = 1) {
     return this.withClient(async (client) => {
       for (let i = 0; i < n; i++) {
-        const query = `INSERT INTO ${this.#tableName} VALUES ($1)`;
+        const query = `INSERT INTO ${tableName} VALUES ($1)`;
         await client.query(query, [this.#index++]);
       }
     });
