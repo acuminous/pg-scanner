@@ -48,16 +48,26 @@ describe('PG Scanner', () => {
     })
   })
 
+  describe('Init', () => {
+    it('should reject repeated initialisation attempts', async () => {
+      const scanner = await connectAndInitialise();
+      await rejects(() => scanner.init(), (err) => {
+        eq(err.message, 'The scanner is already initialised');
+        eq(err.code, 'ERR_PG_SCANNER_INITIALISATION_ERROR');
+        return true;
+      })
+    })
+  })
+
   describe('Scan', () => {
     it('should reject when not initiliased', async () => {
       const scanner = await connect();
       await rejects(() => scanner.scan(), (err) => {
         eq(err.message, 'Please initialise the scanner');
-        eq(err.code, 'ERR_PG_SCANNER_NOT_INITIALISED_ERROR');
+        eq(err.code, 'ERR_PG_SCANNER_INITIALISATION_ERROR');
         return true;
       })
     })
-
 
     it('should ignore standard tables', async () => {
       const scanner = await connectAndInitialise();
