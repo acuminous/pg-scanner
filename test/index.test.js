@@ -70,8 +70,8 @@ describe('PG Scanner', () => {
 
     it('should ignore standard tables', async () => {
       scanner = await connectAndInitialise();
-      const tables = await scanner.scan();
-      eq(tables.length, 0);
+      const stats = await scanner.scan();
+      eq(stats.length, 0);
     })
 
     it('should filter by specified schemas/tables', async () => {
@@ -83,10 +83,12 @@ describe('PG Scanner', () => {
         return true;
       }
       scanner = new Scanner(config, filter);
+
       await scanner.connect();
       await scanner.init();
-      const tables = await scanner.scan();
-      eq(tables.length, 1)
+      const stats = await scanner.scan();
+
+      eq(stats.length, 1)
     })
 
     it('should return stats for custom tables', async () => {
@@ -99,7 +101,6 @@ describe('PG Scanner', () => {
       eq(stats.table, 'test_table');
       eq(stats.sequentialScans, BigInt(1));
       eq(stats.rowsScanned, BigInt(0));
-
     })
 
     it('should return the total number of sequential table scans after reading the table', async () => {
