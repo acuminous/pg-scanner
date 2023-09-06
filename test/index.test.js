@@ -4,7 +4,6 @@ const Scanner = require('../lib/Scanner')
 const Database = require('./utils/Database')
 const NullScanner = require('./utils/NullScanner')
 
-
 describe('PG Scanner', () => {
 
   const config = {
