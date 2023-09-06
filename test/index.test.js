@@ -2,6 +2,7 @@ const { ok, strictEqual: eq, rejects } = require('node:assert');
 const { before, afterEach, describe, xdescribe, it } = require('zunit');
 const { Client } = require('pg');
 const Scanner = require('../lib/Scanner')
+const DBHandler = require('./utils/DBHandler')
 
 describe('PG Scanner', () => {
 
@@ -53,7 +54,8 @@ describe('PG Scanner', () => {
     })
 
     it('should return stats for custom tables', async () => {
-      await createTable('test_table');
+      const databaseHandler = new DBHandler(config, 'test_table');
+      await databaseHandler.createTable()
 
       const scanner = await connect();
       const [stats] = await scanner.scan();
@@ -65,8 +67,9 @@ describe('PG Scanner', () => {
     })
 
     it('should return correct sequentialScans value after reading table', async () => {
-      await createTable('test_table');
-      await readTable('test_table');
+      const databaseHandler = new DBHandler(config, 'test_table');
+      await databaseHandler.createTable()
+      await databaseHandler.readTable()
 
       const scanner = await connect();
       const [stats] = await scanner.scan();
@@ -74,9 +77,10 @@ describe('PG Scanner', () => {
     })
 
     it('should return correct rowsScanned value after insertion', async () => {
-      await createTable('test_table');
-      await insertRow('test_table');
-      await readTable('test_table');
+      const databaseHandler = new DBHandler(config, 'test_table');
+      await databaseHandler.createTable()
+      await databaseHandler.insertRow()
+      await databaseHandler.readTable()
 
       const scanner = await connect();
       const [stats] = await scanner.scan();
@@ -93,27 +97,6 @@ describe('PG Scanner', () => {
     return scanner.connect();
   }
 
-  async function createTable(tableName) {
-    const client = new Client(config);
-    await client.connect();
-    await client.query(`CREATE TABLE ${tableName} ( id INTEGER PRIMARY KEY )`);
-    await client.end();
-  }
-
-  async function insertRow(tableName) {
-    const client = new Client(config);
-    await client.connect();
-    await client.query(`INSERT INTO ${tableName} VALUES (1);`);
-    await client.end();
-  }
-
-  async function readTable(tableName) {
-      const client = new Client(config);
-      await client.connect();
-      await client.query(`SELECT * FROM ${tableName};`);
-      await client.end();
-    }
-
   async function nuke() {
     const client = new Client(config);
     await client.connect();
@@ -125,14 +108,3 @@ describe('PG Scanner', () => {
     await client.end();
   }
 })
-
-/*
-CREATE TABLE test_table (
-  id INTEGER PRIMARY KEY
-);
-SELECT * FROM pg_stat_all_tables WHERE schemaname = 'public';
-
-SELECT * FROM test_table;
-
-INSERT INTO test_table VALUES (1);
-*/
