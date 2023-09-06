@@ -60,10 +60,27 @@ describe('PG Scanner', () => {
       ok(stats, 'No custom tables');
       eq(stats.schema, 'public');
       eq(stats.table, 'test_table');
+      eq(stats.sequentialScans, '1');
+      eq(stats.rowsScanned, '0');
+    })
 
-      console.log({ stats });
-      eq(stats.sequentialScans, 0);
-      eq(stats.rowsScanned, 0);
+    it('should return correct sequentialScans value after reading table', async () => {
+      await createTable('test_table');
+      await readTable('test_table');
+
+      const scanner = await connect();
+      const [stats] = await scanner.scan();
+      eq(stats.sequentialScans, '2');
+    })
+
+    it('should return correct rowsScanned value after insertion', async () => {
+      await createTable('test_table');
+      await insertRow('test_table');
+      await readTable('test_table');
+
+      const scanner = await connect();
+      const [stats] = await scanner.scan();
+      eq(stats.rowsScanned, '1');
     })
   });
 
@@ -83,14 +100,28 @@ describe('PG Scanner', () => {
     await client.end();
   }
 
+  async function insertRow(tableName) {
+    const client = new Client(config);
+    await client.connect();
+    await client.query(`INSERT INTO ${tableName} VALUES (1);`);
+    await client.end();
+  }
+
+  async function readTable(tableName) {
+      const client = new Client(config);
+      await client.connect();
+      await client.query(`SELECT * FROM ${tableName};`);
+      await client.end();
+    }
+
   async function nuke() {
     const client = new Client(config);
     await client.connect();
     const results = await client.query("SELECT relname FROM pg_stat_all_tables WHERE schemaname = 'public'");
-    const dropTables = results.rows.map(({ relname }) => {
-      return client.query(`DROP TABLE ${relname}`);
+    const dropTables = results.rows.map(async ({ relname }) => {
+      return await client.query(`DROP TABLE ${relname}`);
     });
-    await dropTables;
+    await Promise.all(dropTables);
     await client.end();
   }
 })
