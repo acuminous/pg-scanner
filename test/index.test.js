@@ -123,28 +123,21 @@ describe('PG Scanner', () => {
 
     it('should return the difference between sequential rows read when there are multiple tables', async () => {
       const tableOne = 'test_table'
-      await database.createTable(tableOne);
       const tableOneStartingNumberOfRows = 2;
       const tableOneStartingNumberOfReads = 3;
-      await database.insertRow(tableOne, tableOneStartingNumberOfRows);
-      await database.readTable(tableOne, tableOneStartingNumberOfReads);
+      await setupTable(tableOne, tableOneStartingNumberOfRows, tableOneStartingNumberOfReads);
+
+      const tableTwo = 'test_table_2'
+      const tableTwoStartingNumberOfRows = 4;
+      const tableTwoStartingNumberOfReads = 7;
+      await setupTable(tableTwo, tableTwoStartingNumberOfRows, tableTwoStartingNumberOfReads);
 
       const scanner = await connect();
       await scanner.scan();
-
-      const testTableTwo = 'test_table_2'
-      await database.createTable(testTableTwo);
-      const tableTwoStartingNumberOfRows = 4;
-      const tableTwoStartingNumberOfReads = 7;
-      await database.insertRow(testTableTwo, tableTwoStartingNumberOfRows);
-      await database.readTable(testTableTwo, tableTwoStartingNumberOfReads);
-
       await database.readTable(tableOne);
-
       const [stats] = await scanner.scan();
+
       eq(stats.rowsScannedDelta, BigInt(2))
-
-
     })
   });
 
@@ -155,8 +148,14 @@ describe('PG Scanner', () => {
 
   })
 
-  function connect() {
+  async function connect() {
     scanner = new Scanner(config);
     return scanner.connect();
+  }
+
+  async function setupTable(tableName, numberOfRows, numberOfReads) {
+    await database.createTable(tableName);
+    await database.insertRow(tableName, numberOfRows);
+    await database.readTable(tableName, numberOfReads);
   }
 })
