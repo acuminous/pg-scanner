@@ -65,8 +65,9 @@ describe('PG Scanner', () => {
       ok(stats, 'No custom tables');
       eq(stats.schema, 'public');
       eq(stats.table, 'test_table');
-      eq(stats.sequentialScans, '1');
-      eq(stats.rowsScanned, '0');
+      eq(stats.sequentialScans, BigInt(1));
+      eq(stats.rowsScanned, BigInt(0));
+
     })
 
     it('should return the total number of sequential table scans after reading the table', async () => {
@@ -74,12 +75,12 @@ describe('PG Scanner', () => {
       const scanner = await connect();
 
       const [stats1] = await scanner.scan();
-      eq(stats1.sequentialScans, '1');
+      eq(stats1.sequentialScans, BigInt(1));
 
       await database.readTable('test_table')
 
       const [stats2] = await scanner.scan();
-      eq(stats2.sequentialScans, '2');
+      eq(stats2.sequentialScans, BigInt(2));
     })
 
     it('should return the total number of rows read by sequential table scans after insertion', async () => {
@@ -93,7 +94,7 @@ describe('PG Scanner', () => {
 
       const scanner = await connect();
       const [stats] = await scanner.scan();
-      eq(stats.rowsScanned, `${numberOfRowsScanned}`);
+      eq(stats.rowsScanned, BigInt(numberOfRowsScanned));
     })
 
     it('should return the difference between sequential rows read', async () => {
@@ -117,7 +118,7 @@ describe('PG Scanner', () => {
       const delta = totalNumberOfRowsScanned - startingNumberOfRowsScanned;
 
       const [stats] = await scanner.scan();
-      eq(stats.rowsScannedDelta, `${delta}`)
+      eq(stats.rowsScannedDelta, BigInt(delta))
     })
 
     it('should return the difference between sequential rows read when there are multiple tables', async () => {
@@ -141,7 +142,7 @@ describe('PG Scanner', () => {
       await database.readTable(tableOne);
 
       const [stats] = await scanner.scan();
-      eq(stats.rowsScannedDelta, `2`)
+      eq(stats.rowsScannedDelta, BigInt(2))
 
 
     })
