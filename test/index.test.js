@@ -1,5 +1,5 @@
 const { ok, strictEqual: eq, rejects } = require('node:assert');
-const { before, afterEach, describe, xdescribe, it } = require('zunit');
+const { before, afterEach, describe, it } = require('zunit');
 const Scanner = require('../lib/Scanner')
 const Database = require('./utils/Database')
 const NullScanner = require('./utils/NullScanner')
@@ -31,7 +31,7 @@ describe('PG Scanner', () => {
   })
 
 
-  describe('Connect', () => {
+  describe('connect', () => {
     it('should connect successfully', async () => {
       connect();
     })
@@ -48,7 +48,7 @@ describe('PG Scanner', () => {
     })
   })
 
-  describe('Init', () => {
+  describe('init', () => {
     it('should reject repeated initialisation attempts', async () => {
       const scanner = await connectAndInitialise();
       await rejects(() => scanner.init(), (err) => {
@@ -59,7 +59,7 @@ describe('PG Scanner', () => {
     })
   })
 
-  describe('Scan', () => {
+  describe('scan', () => {
     it('should reject when not initiliased', async () => {
       const scanner = await connect();
       await rejects(() => scanner.scan(), (err) => {
@@ -177,10 +177,6 @@ describe('PG Scanner', () => {
       eq(stats.rowsScannedDelta, BigInt(2))
     })
   });
-
-  describe('Disconnect', () => {
-
-  })
 
   async function connect() {
     scanner = new Scanner(config);
