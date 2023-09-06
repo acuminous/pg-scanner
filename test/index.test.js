@@ -49,17 +49,25 @@ describe('PG Scanner', () => {
   })
 
   describe('Scan', () => {
-    it('should ignore standard tables', async () => {
+    it('should reject when not initiliased', async () => {
       const scanner = await connect();
+      await rejects(() => scanner.scan(), (err) => {
+        eq(err.message, 'Please initialise the scanner');
+        eq(err.code, 'ERR_PG_SCANNER_NOT_INITIALISED_ERROR');
+        return true;
+      })
+    })
 
+
+    it('should ignore standard tables', async () => {
+      const scanner = await connectAndInitialise();
       const tables = await scanner.scan();
       eq(tables.length, 0);
     })
 
     it('should return stats for custom tables', async () => {
       await database.createTable('test_table')
-
-      const scanner = await connect();
+      const scanner = await connectAndInitialise();
 
       const [stats] = await scanner.scan();
       ok(stats, 'No custom tables');
@@ -72,7 +80,7 @@ describe('PG Scanner', () => {
 
     it('should return the total number of sequential table scans after reading the table', async () => {
       await database.createTable('test_table')
-      const scanner = await connect();
+      const scanner = await connectAndInitialise();
 
       const [stats1] = await scanner.scan();
       eq(stats1.sequentialScans, BigInt(1));
@@ -89,7 +97,7 @@ describe('PG Scanner', () => {
       const numberOfReads = 3;
       await setupTable(tableName, numberOfRows, numberOfReads);
 
-      const scanner = await connect();
+      const scanner = await connectAndInitialise();
       const [stats] = await scanner.scan();
 
       const numberOfRowsScanned = numberOfRows * numberOfReads;
@@ -102,7 +110,7 @@ describe('PG Scanner', () => {
       const startingNumberOfReads = 3;
       await setupTable(tableName, startingNumberOfRows, startingNumberOfReads);
 
-      const scanner = await connect();
+      const scanner = await connectAndInitialise();
       await scanner.scan();
 
       const additionalNumberOfRows = 3;
@@ -122,7 +130,7 @@ describe('PG Scanner', () => {
       const startingNumberOfReads = 3;
       await setupTable(tableName, startingNumberOfRows, startingNumberOfReads);
 
-      const scanner = await connect();
+      const scanner = await connectAndInitialise();
       await scanner.scan();
 
       const additionalNumberOfRows = 3;
@@ -150,7 +158,8 @@ describe('PG Scanner', () => {
       const tableTwoStartingNumberOfReads = 7;
       await setupTable(tableTwo, tableTwoStartingNumberOfRows, tableTwoStartingNumberOfReads);
 
-      const scanner = await connect();
+      const scanner = await connectAndInitialise();
+
       await scanner.scan();
       await database.readTable(tableOne);
       const [stats] = await scanner.scan();
@@ -159,9 +168,6 @@ describe('PG Scanner', () => {
     })
   });
 
-  it('should work when the table has previous rows scanned rather than none')
-  it('should work with really big numbers')
-
   describe('Disconnect', () => {
 
   })
@@ -169,6 +175,11 @@ describe('PG Scanner', () => {
   async function connect() {
     scanner = new Scanner(config);
     return scanner.connect();
+  }
+
+  async function connectAndInitialise() {
+    const scanner = await connect();
+    return scanner.init();
   }
 
   async function setupTable(tableName, numberOfRows, numberOfReads) {
