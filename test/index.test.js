@@ -96,7 +96,27 @@ describe('PG Scanner', () => {
       eq(stats.rowsScanned, BigInt(numberOfRowsScanned));
     })
 
-    it('should return the difference between sequential rows read', async () => {
+    it('should return the difference between sequential scans', async () => {
+      const tableName = 'test_table';
+      const startingNumberOfRows = 2;
+      const startingNumberOfReads = 3;
+      await setupTable(tableName, startingNumberOfRows, startingNumberOfReads);
+
+      const scanner = await connect();
+      await scanner.scan();
+
+      const additionalNumberOfRows = 3;
+      const additionalNumberOfReads = 5;
+      await database.insertRow(tableName, additionalNumberOfRows);
+      await database.readTable(tableName, additionalNumberOfReads);
+
+      const delta = additionalNumberOfReads;
+
+      const [stats] = await scanner.scan();
+      eq(stats.sequentialScansDelta, BigInt(delta))
+    })
+
+    it('should return the difference between rows read', async () => {
       const tableName = 'test_table';
       const startingNumberOfRows = 2;
       const startingNumberOfReads = 3;
@@ -119,7 +139,7 @@ describe('PG Scanner', () => {
       eq(stats.rowsScannedDelta, BigInt(delta))
     })
 
-    it('should return the difference between sequential rows read when there are multiple tables', async () => {
+    it('should return the difference between rows read when there are multiple tables', async () => {
       const tableOne = 'test_table'
       const tableOneStartingNumberOfRows = 2;
       const tableOneStartingNumberOfReads = 3;
