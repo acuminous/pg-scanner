@@ -69,7 +69,7 @@ describe('PG Scanner', () => {
       eq(stats.rowsScanned, '0');
     })
 
-    it('should return correct sequentialScans value after reading table', async () => {
+    it('should return the total number of sequential table scans after reading the table', async () => {
       await database.createTable()
       const scanner = await connect();
 
