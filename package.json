@@ -10,7 +10,7 @@
     "test": "zUnit"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
     "zunit": "^4.0.2"
