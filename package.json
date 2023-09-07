@@ -27,7 +27,7 @@
     "zunit": "^4.0.2"
   },
   "peerDependencies": {
-    "pg": "^8.11.3"
+    "pg": "^8.0.0"
   },
   "engines": {
     "node": ">=16"
