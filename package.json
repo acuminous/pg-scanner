@@ -8,7 +8,8 @@
   },
   "scripts": {
     "docker": "docker run -d --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres:15.4-alpine",
-    "test": "zUnit"
+    "test": "zUnit",
+    "coverage": "nyc --report html --reporter lcov --reporter text-summary npm test"
   },
   "contributors": [
     "Chris Stanlake (https://github.com/codetopixels)",
@@ -24,6 +25,7 @@
     "scan"
   ],
   "devDependencies": {
+    "nyc": "^15.1.0",
     "zunit": "^4.0.2"
   },
   "peerDependencies": {
