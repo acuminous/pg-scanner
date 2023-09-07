@@ -9,6 +9,7 @@
   "scripts": {
     "docker": "docker run -d --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres:15.4-alpine",
     "test": "zUnit",
+    "lint": "eslint .",
     "coverage": "nyc --report html --reporter lcov --reporter text-summary npm test"
   },
   "contributors": [
@@ -25,6 +26,8 @@
     "scan"
   ],
   "devDependencies": {
+    "eslint": "^8.48.0",
+    "eslint-config-airbnb-base": "^15.0.0",
     "nyc": "^15.1.0",
     "zunit": "^4.0.2"
   },
