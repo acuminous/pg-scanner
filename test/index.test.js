@@ -1,4 +1,4 @@
-const { ok, match, strictEqual: eq, rejects } = require('node:assert');
+const { ok, strictEqual: eq, rejects } = require('node:assert');
 const { before, afterEach, describe, it } = require('zunit');
 const Scanner = require('../lib/Scanner');
 const Database = require('./utils/Database');
@@ -10,7 +10,7 @@ describe('PG Scanner', () => {
     port: 5432,
     database: 'postgres',
     user: 'postgres',
-    password: 'postgres'
+    password: 'postgres',
   };
 
   const database = new Database(config);
@@ -34,10 +34,10 @@ describe('PG Scanner', () => {
     });
 
     it('should report connection errors', async () => {
-      scanner = new Scanner({ host: 'doesnotexist', port: 1111, user: 'bob' });
+      scanner = new Scanner({ host: 'doesnotexist-wibble-panda-totem.com', port: 1111, user: 'bob' });
 
       await rejects(() => scanner.connect(), (err) => {
-        match(err.message, /Error connecting to doesnotexist:1111 as bob: getaddrinfo .* doesnotexist/);
+        eq(err.message, 'Error connecting to doesnotexist-wibble-panda-totem.com:1111 as bob: getaddrinfo ENOTFOUND doesnotexist-wibble-panda-totem.com');
         eq(err.code, 'ERR_PG_SCANNER_CONNECTION_ERROR');
         eq(err.cause.code, 'ENOTFOUND');
         return true;
