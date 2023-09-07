@@ -1,17 +1,28 @@
 {
-  "name": "pg-seq-scan-alert",
+  "name": "pg-scanner",
   "version": "1.0.0",
   "main": "index.js",
   "directories": {
+    "lib": "lib",
     "test": "test"
   },
   "scripts": {
     "docker": "docker run -d --name postgres -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 postgres:15.4-alpine",
     "test": "zUnit"
   },
-  "author": "",
+  "contributors": [
+    "Chris Stanlake (https://github.com/codetopixels)",
+    "Stephen Cresswell (https://github.com/cressie176)"
+  ],
   "license": "MIT",
-  "description": "",
+  "description": "Reports PostgreSQL scan statistics",
+  "keywords": [
+    "metrics",
+    "PostgreSQL",
+    "pg_stat_all_tables",
+    "sequencial",
+    "scan"
+  ],
   "devDependencies": {
     "zunit": "^4.0.2"
   },
@@ -20,5 +31,13 @@
   },
   "engines": {
     "node": ">=16"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/acuminous/pg-scanner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/acuminous/pg-scanner/issues"
+  },
+  "homepage": "https://github.com/acuminous/pg-scanner#readme"
 }
