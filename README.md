@@ -13,7 +13,7 @@ const config = {
   database: 'mydb'
 };
 
-const scanner = new Scanner(config);
+const { Scanner } = new Scanner(config);
 
 scanner.connect()
   .then(() => scanner.init())
@@ -55,9 +55,9 @@ yarn add pg-scanner
 Import the Scanner module into your JavaScript or TypeScript file:
 
 ```bash
-const Scanner = require('pg-scanner');
+const { Scanner } = require('pg-scanner');
 # or
-import Scanner from 'pg-scanner';
+import { Scanner } from 'pg-scanner';
 ```
 
 ## PG-Scanner API
