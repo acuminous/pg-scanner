@@ -84,7 +84,7 @@ import { Scanner } from 'pg-scanner';
 | Name    | Required | Notes                                                                                                                                                                                                                                  |
 | ------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | config  | No       | A configuration object which is passed directly to [node-pg](https://www.npmjs.com/package/pg). Alternatively, you can use [environment variables](https://node-postgres.com/features/connecting#environment-variables) if you prefer. |
-| filter  | No       | A function for filtering out unwanted tables. It will be called with an object with a table and schema property and should return truthy if the table is to be included in the statistics                                              |
+| filter  | No       | A function for filtering out unwanted tables. It will be called with an object with a table and schema property and should return truthy if the table is to be included in the statistics. See the filter example for more details.                   |
 
 ### init() : Promise&lt;void&gt;
 
