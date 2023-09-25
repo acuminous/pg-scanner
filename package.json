@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "directories": {
-    "example": "example",
+    "example": "examples",
     "lib": "lib",
     "test": "test"
   },
@@ -49,7 +49,6 @@
     "url": "https://github.com/acuminous/pg-scanner/issues"
   },
   "homepage": "https://github.com/acuminous/pg-scanner#readme",
-  "dependencies": {
-  },
-  "author": ""
+  "author": "",
+  "types": "./index.d.ts"
 }
