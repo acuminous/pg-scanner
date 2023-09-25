@@ -1,3 +1,4 @@
+/* eslint no-console: 0 */
 const { Scanner } = require('..');
 
 const config = {
@@ -8,7 +9,7 @@ const config = {
   password: 'postgres',
 };
 
-const scanner = new Scanner(config);
+const scanner = new Scanner({ config });
 
 (async () => {
   await scanner.init();
@@ -18,7 +19,13 @@ const scanner = new Scanner(config);
 function scheduleScan(delay) {
   setTimeout(async () => {
     const stats = await scanner.scan();
-    console.log({ stats });
+    dump(stats);
     scheduleScan(delay);
   }, delay);
+}
+
+function dump(stats) {
+  const serializer = (_, value) => (typeof value === 'bigint' ? value.toString() : value);
+  const text = JSON.stringify(stats, serializer);
+  console.log(text);
 }

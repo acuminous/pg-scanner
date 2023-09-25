@@ -34,10 +34,11 @@ describe('PG Scanner', () => {
     });
 
     it('should report connection errors', async () => {
-      scanner = new Scanner({ host: 'doesnotexist-wibble-panda-totem.com', port: 1111, user: 'bob' });
+      const badConfig = { host: 'doesnotexist-wibble-panda-totem.com', port: 1111, database: 'db', user: 'bob' };
+      scanner = new Scanner({ config: badConfig });
 
       await rejects(() => scanner.init(), (err) => {
-        eq(err.message, 'Error connecting to doesnotexist-wibble-panda-totem.com:1111 as bob: getaddrinfo ENOTFOUND doesnotexist-wibble-panda-totem.com');
+        eq(err.message, 'Error connecting to doesnotexist-wibble-panda-totem.com:1111/db as bob: getaddrinfo ENOTFOUND doesnotexist-wibble-panda-totem.com');
         eq(err.code, 'ERR_PG_SCANNER_CONNECTION_ERROR');
         eq(err.cause.code, 'ENOTFOUND');
         return true;
@@ -58,7 +59,7 @@ describe('PG Scanner', () => {
     it('should ignore standard tables', async () => {
       await initialiseScanner();
       const stats = await scanner.scan();
-      eq(stats.length, 0);
+      eq(stats.tables.length, 0);
     });
 
     it('should filter by specified schemas/tables', async () => {
@@ -69,19 +70,19 @@ describe('PG Scanner', () => {
         if (schema === 'public' && table === 'exclude_table') return false;
         return true;
       };
-      scanner = new Scanner(config, filter);
+      scanner = new Scanner({ config, filter });
 
       await scanner.init();
       const stats = await scanner.scan();
 
-      eq(stats.length, 1);
+      eq(stats.tables.length, 1);
     });
 
     it('should return stats for custom tables', async () => {
       await database.createTable('test_table');
       await initialiseScanner();
 
-      const [stats] = await scanner.scan();
+      const { tables: [stats] } = await scanner.scan();
       ok(stats, 'No custom tables');
       eq(stats.schema, 'public');
       eq(stats.table, 'test_table');
@@ -93,12 +94,12 @@ describe('PG Scanner', () => {
       await database.createTable('test_table');
       await initialiseScanner();
 
-      const [stats1] = await scanner.scan();
+      const { tables: [stats1] } = await scanner.scan();
       eq(stats1.sequentialScans, BigInt(1));
 
       await database.readTable('test_table');
 
-      const [stats2] = await scanner.scan();
+      const { tables: [stats2] } = await scanner.scan();
       eq(stats2.sequentialScans, BigInt(2));
     });
 
@@ -109,7 +110,7 @@ describe('PG Scanner', () => {
       await setupTable(tableName, numberOfRows, numberOfReads);
 
       await initialiseScanner();
-      const [stats] = await scanner.scan();
+      const { tables: [stats] } = await scanner.scan();
 
       const numberOfRowsScanned = numberOfRows * numberOfReads;
       eq(stats.rowsScanned, BigInt(numberOfRowsScanned));
@@ -131,7 +132,7 @@ describe('PG Scanner', () => {
 
       const delta = additionalNumberOfReads;
 
-      const [stats] = await scanner.scan();
+      const { tables: [stats] } = await scanner.scan();
       eq(stats.sequentialScansDelta, BigInt(delta));
     });
 
@@ -154,7 +155,7 @@ describe('PG Scanner', () => {
       const totalNumberOfRowsScanned = startingNumberOfRowsScanned + additionalNumberOfRowsScanned;
       const delta = totalNumberOfRowsScanned - startingNumberOfRowsScanned;
 
-      const [stats] = await scanner.scan();
+      const { tables: [stats] } = await scanner.scan();
       eq(stats.rowsScannedDelta, BigInt(delta));
     });
 
@@ -173,14 +174,14 @@ describe('PG Scanner', () => {
 
       await scanner.scan();
       await database.readTable(tableOne);
-      const [stats] = await scanner.scan();
+      const { tables: [stats] } = await scanner.scan();
 
       eq(stats.rowsScannedDelta, BigInt(2));
     });
   });
 
   async function initialiseScanner() {
-    scanner = new Scanner(config);
+    scanner = new Scanner({ config });
     await scanner.init();
   }
 
