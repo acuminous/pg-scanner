@@ -47,11 +47,11 @@ We call `unref` to ensure the scheduled scans to not prevent your application fr
 
 <!-- no toc -->
 
-- [Installiation](#installation)
-- [API](#pg-scanner-api)
+- [Installation](#installation)
+- [API](#api)
   - [Constructor](#Constructor)
-  - [init](#init)
-  - [scan](#scan)
+  - [init](#init--promise)
+  - [scan](#scan--promise)
   - [Stats](#stats)
 
 ### Installation
@@ -76,14 +76,14 @@ import { Scanner } from 'pg-scanner';
 
 ## API
 
-### Scanner(options?)
+### Scanner(options? : ScannerOptions)
 
 | Name    | Required | Notes                                                                                                                                                                                                                                  |
 | ------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | config  | No       | A configuration object which is passed directly to [node-pg](https://www.npmjs.com/package/pg). Alternatively, you can use [environment variables](https://node-postgres.com/features/connecting#environment-variables) if you prefer. |
 | filter  | No       | A function for filtering out unwanted tables. It will be called with an object with a table and schema property and should return truthy if the table is to be included in the statistics                                              |
 
-### init()
+### init() : Promise<void>
 
 ```js
 await scanner.init();
