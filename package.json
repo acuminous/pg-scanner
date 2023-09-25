@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "directories": {
+    "example": "example",
     "lib": "lib",
     "test": "test"
   },
@@ -18,7 +19,7 @@
     "Stephen Cresswell (https://github.com/cressie176)"
   ],
   "license": "MIT",
-  "description": "Reports PostgreSQL scan statistics",
+  "description": "Reports PostgreSQL database statistics",
   "keywords": [
     "metrics",
     "PostgreSQL",
@@ -47,5 +48,8 @@
   "bugs": {
     "url": "https://github.com/acuminous/pg-scanner/issues"
   },
-  "homepage": "https://github.com/acuminous/pg-scanner#readme"
+  "homepage": "https://github.com/acuminous/pg-scanner#readme",
+  "dependencies": {
+  },
+  "author": ""
 }

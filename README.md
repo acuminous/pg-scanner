@@ -5,7 +5,7 @@ PG-Scanner is a library which reports statistics about PostgreSQL databasesstati
 ## TL;DR
 
 ```js
-const { Scanner } = require('pg-scanner');
+const { Scanner } = require("pg-scanner");
 
 const config = {
   host: "localhost",
@@ -17,21 +17,23 @@ const config = {
 
 const scanner = new Scanner(config);
 
-async(() => {
+(async () => {
   await scanner.init();
   scheduleScan(60 * 60 * 1000);
 })();
 
 function scheduleScan(delay) {
   setTimeout(async () => {
-    const stats = await scanner.scan()
+    const stats = await scanner.scan();
     console.log({ stats });
     scheduleScan(delay);
-  }).unref();
+  }, delay).unref();
 }
 ```
 
 In this example, we create a new instance of the Scanner class with the database configuration. We intialise the scanner to establish a baseline, then re-scan once per hour, logging the statistics each time.
+
+We call `unref` to ensure the scheduled scans to not prevent your application from shutting down if the event loop is otherwise inactive, but if you are running the above script in a standalone process you may wish to remove this call.
 
 ## Index
 
