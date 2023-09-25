@@ -71,9 +71,9 @@ yarn add pg-scanner
 
 Import the Scanner module into your JavaScript or TypeScript file:
 
-```bash
+```js
 const { Scanner } = require('pg-scanner');
-# or
+// or
 import { Scanner } from 'pg-scanner';
 ```
 
