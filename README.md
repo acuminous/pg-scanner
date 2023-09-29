@@ -106,14 +106,14 @@ The scan method is responsible for retrieving and augmenting database statistics
 
 The stats returned by the [scan](#scan) is an array of objects with the following properties
 
-| Name                 | Notes                                                                 |
-| -------------------- | --------------------------------------------------------------------- |
-| schema               | The schema to which the stats relate                                  |
-| table                | The table to which the stats relate                                   |
-| sequentialScans      | The total number of sequential scans performed on the table           |
-| rowsScanned          | The total number of rows returned by the sequential scans             |
-| sequentialScansDelta | The change in sequential scans since the last check                   |
-| rowsScannedDelta     | The change in rows scanned since the last check                       |
+| Name                 | Type   | Notes                                                                 |
+| -------------------- | ------ | --------------------------------------------------------------------- |
+| schema               | String | The schema to which the stats relate                                  |
+| table                | String | The table to which the stats relate                                   |
+| sequentialScans      | BigInt | The total number of sequential scans performed on the table           |
+| rowsScanned          | BigInt | The total number of rows returned by the sequential scans             |
+| sequentialScansDelta | BigInt | The change in sequential scans since the last check                   |
+| rowsScannedDelta     | BigInt | The change in rows scanned since the last check                       |
 
 ### Contributing
 
